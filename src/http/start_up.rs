@@ -16,9 +16,25 @@ pub fn setup_server(app_states: Arc<AppStates>) {
     )));
 
     http_server.add_middleware(Arc::new(IsAliveMiddleware::new(
-        APP_NAME.to_string(),
-        APP_VERSION.to_string(),
+        get_app_name(),
+        get_app_version(),
     )));
 
     http_server.start(app_states, my_logger::LOGGER.clone());
+}
+
+fn get_app_name() -> String {
+    if let Ok(app_name) = std::env::var("APP_NAME") {
+        app_name
+    } else {
+        APP_NAME.to_string()
+    }
+}
+
+fn get_app_version() -> String {
+    if let Ok(app_version) = std::env::var("APP_VERSION") {
+        app_version
+    } else {
+        APP_VERSION.to_string()
+    }
 }
