@@ -24,7 +24,7 @@ pub fn setup_server(app_states: Arc<AppStates>) {
 }
 
 fn get_app_name() -> String {
-    if let Ok(app_name) = std::env::var("APP_NAME") {
+    if let Ok(app_name) = std::env::var("BUILD_NAME") {
         app_name
     } else {
         APP_NAME.to_string()
@@ -32,7 +32,7 @@ fn get_app_name() -> String {
 }
 
 fn get_app_version() -> String {
-    if let Ok(app_version) = std::env::var("APP_VERSION") {
+    if let Ok(app_version) = std::env::var("BUILD_VERSION") {
         app_version
     } else {
         APP_VERSION.to_string()
