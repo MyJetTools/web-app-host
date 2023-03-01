@@ -10,15 +10,15 @@ pub const APP_NAME: &'static str = env!("CARGO_PKG_NAME");
 pub fn setup_server(app_states: Arc<AppStates>) {
     let mut http_server = MyHttpServer::new(SocketAddr::from(([0, 0, 0, 0], 8000)));
 
-    http_server.add_middleware(Arc::new(my_http_server::StaticFilesMiddleware::new(
-        None,
-        vec!["index.html".to_string()].into(),
-    )));
-
     http_server.add_middleware(Arc::new(IsAliveMiddleware::new(
         get_app_name(),
         get_app_version(),
     )));
+
+    http_server.add_middleware(Arc::new(
+        my_http_server::StaticFilesMiddleware::new(None, vec!["index.html".to_string()].into())
+            .set_not_found_file("index.html".to_string()),
+    ));
 
     http_server.start(app_states, my_logger::LOGGER.clone());
 }
