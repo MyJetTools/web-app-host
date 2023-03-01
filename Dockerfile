@@ -1,4 +1,5 @@
 FROM rust:slim
-COPY ./target/release/web-app-host ./target/release/web-app-host 
+WORKDIR /app
+COPY ./target/release/web-app-host ./web-app-host 
 COPY ./wwwroot ./wwwroot 
-ENTRYPOINT ["./target/release/web-app-host"]
+ENTRYPOINT ["./web-app-host"]
