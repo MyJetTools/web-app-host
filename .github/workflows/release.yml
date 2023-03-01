@@ -4,7 +4,7 @@ on:
     tags: "*"
 
 env:
-  IMAGE_NAME: myjettools/web-app-hosting
+  IMAGE_NAME: myjettools/web-app-host
 
 
 jobs:
