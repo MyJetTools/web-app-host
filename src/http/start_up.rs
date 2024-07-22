@@ -17,7 +17,8 @@ pub fn setup_server(app_states: Arc<AppStates>) {
 
     http_server.add_middleware(Arc::new(
         my_http_server::StaticFilesMiddleware::new(None, vec!["index.html".to_string()].into())
-            .set_not_found_file("index.html".to_string()),
+            .set_not_found_file("index.html".to_string())
+            .enable_files_caching(),
     ));
 
     http_server.start(app_states, my_logger::LOGGER.clone());
