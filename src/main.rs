@@ -12,6 +12,7 @@ async fn main() {
         SocketAddr::new([0, 0, 0, 0].into(), 8000),
     );
 
+    #[cfg(unix)]
     if let Ok(unix_socket_addr) = std::env::var("UNIX_SOCKET") {
         crate::http::start_up::setup_server(app_states.clone(), unix_socket_addr);
     }
