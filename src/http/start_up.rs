@@ -7,8 +7,28 @@ use rust_extensions::AppStates;
 pub const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
 pub const APP_NAME: &'static str = env!("CARGO_PKG_NAME");
 
-pub fn setup_server(app_states: Arc<AppStates>) {
-    let mut http_server = MyHttpServer::new(SocketAddr::from(([0, 0, 0, 0], 8000)));
+pub enum Addr {
+    Tcp(SocketAddr),
+    Unix(String),
+}
+
+impl Into<Addr> for SocketAddr {
+    fn into(self) -> Addr {
+        Addr::Tcp(self)
+    }
+}
+
+impl Into<Addr> for String {
+    fn into(self) -> Addr {
+        Addr::Unix(self)
+    }
+}
+
+pub fn setup_server(app_states: Arc<AppStates>, addr: impl Into<Addr>) {
+    let mut http_server = match addr.into() {
+        Addr::Tcp(socket_addr) => MyHttpServer::new(socket_addr),
+        Addr::Unix(unix_socket_addr) => MyHttpServer::new_as_unix_socket(unix_socket_addr),
+    };
 
     http_server.add_middleware(Arc::new(IsAliveMiddleware::new(
         get_app_name(),
