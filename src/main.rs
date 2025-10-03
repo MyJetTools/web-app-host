@@ -1,6 +1,4 @@
-use std::{net::SocketAddr, sync::Arc};
-
-use crate::app::AppContext;
+use std::net::SocketAddr;
 
 mod app;
 mod http;
