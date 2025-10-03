@@ -10,6 +10,8 @@ impl HttpServerMiddleware for InjectVersionMiddleware {
         &self,
         ctx: &mut HttpContext,
     ) -> Option<Result<HttpOkResult, HttpFailResult>> {
+        println!("path: {}", ctx.request.get_path().as_str());
+
         let Some(file_to_inject) = crate::app::APP_CTX.file_to_inject.as_ref() else {
             return None;
         };
