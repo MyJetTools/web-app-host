@@ -33,7 +33,11 @@ impl HttpServerMiddleware for InjectVersionMiddleware {
                 Ok(file) => file,
                 Err(_) => return None,
             };
-
+            println!("Replacing version to: {}", crate::app::APP_CTX.app_version);
+            println!(
+                "Replacing compile time to: {}",
+                crate::app::APP_CTX.compile_time
+            );
             let file_content = file
                 .replace("${APP_VERSION}", &crate::app::APP_CTX.app_version)
                 .replace("${APP_COMPILE_TIME}", &crate::app::APP_CTX.compile_time);
