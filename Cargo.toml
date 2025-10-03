@@ -12,6 +12,7 @@ my-http-server = { tag = "0.8.3", git = "https://github.com/MyJetTools/my-http-s
 is-alive-middleware = { tag = "0.8.3", git = "https://github.com/MyJetTools/is-alive-middleware.git" }
 my-logger = { tag = "1.2.1", git = "https://github.com/MyJetTools/my-logger.git" }
 rust-extensions = { tag = "0.1.5", git = "https://github.com/MyJetTools/rust-extensions.git" }
-
+async-trait = "*"
+lazy_static = "*"
 
 tokio = { version = "*", features = ["full"] }
