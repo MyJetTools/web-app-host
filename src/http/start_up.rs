@@ -37,6 +37,7 @@ pub fn setup_server(addr: impl Into<Addr>) {
         .set_not_found_file("index.html".to_string())
         .add_index_file("index.html")
         .with_etag()
+        .set_path_not_to_cache("/")
         .enable_files_caching();
 
     http_server.add_middleware(Arc::new(static_files_middleware));
