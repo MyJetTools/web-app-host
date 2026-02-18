@@ -5,11 +5,11 @@ mod http;
 
 #[tokio::main]
 async fn main() {
-    crate::http::start_up::setup_server(SocketAddr::new([0, 0, 0, 0].into(), 8000));
+    crate::http::start_up::setup_server(SocketAddr::new([0, 0, 0, 0].into(), 8000)).await;
 
     #[cfg(unix)]
     if let Ok(unix_socket_addr) = std::env::var("UNIX_SOCKET") {
-        crate::http::start_up::setup_server(unix_socket_addr);
+        crate::http::start_up::setup_server(unix_socket_addr).await;
     }
 
     crate::app::APP_CTX.app_states.wait_until_shutdown().await;
