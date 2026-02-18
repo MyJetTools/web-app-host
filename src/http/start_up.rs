@@ -53,12 +53,13 @@ pub async fn setup_server(addr: impl Into<Addr>) {
 }
 
 async fn get_disable_cache_list() -> Vec<String> {
-    let disabled_cache = tokio::fs::read_to_string("./www-system").await;
+    const FILE_NAME: &'static str = "./www-system/.disable-cache";
+    let disabled_cache = tokio::fs::read_to_string(FILE_NAME).await;
 
     let result = match disabled_cache {
         Ok(value) => value,
         Err(_) => {
-            println!("Can not find file ./www-system. No Disabled cache list is used");
+            println!("Can not find file '{FILE_NAME}'. No Disabled cache list is used");
             return vec![];
         }
     };
