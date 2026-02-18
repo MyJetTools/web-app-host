@@ -33,11 +33,13 @@ pub fn setup_server(addr: impl Into<Addr>) {
 
     http_server.add_middleware(Arc::new(super::InjectVersionMiddleware));
 
-    http_server.add_middleware(Arc::new(
-        my_http_server::StaticFilesMiddleware::new(None, vec!["index.html".to_string()].into())
-            .set_not_found_file("index.html".to_string())
-            .enable_files_caching(),
-    ));
+    let static_files_middleware = my_http_server::StaticFilesMiddleware::new()
+        .set_not_found_file("index.html".to_string())
+        .add_index_file("index.html")
+        .with_etag()
+        .enable_files_caching();
+
+    http_server.add_middleware(Arc::new(static_files_middleware));
 
     http_server.start(
         crate::app::APP_CTX.app_states.clone(),
