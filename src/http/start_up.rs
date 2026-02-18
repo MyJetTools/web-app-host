@@ -64,7 +64,12 @@ async fn get_disable_cache_list() -> Vec<String> {
         }
     };
 
-    let result: Vec<String> = result.split('\n').map(|itm| itm.to_string()).collect();
+    let result: Vec<String> = result
+        .split('\n')
+        .map(|itm| itm.trim())
+        .filter(|itm| itm.len() > 0)
+        .map(|itm| itm.to_string())
+        .collect();
 
     println!("Loaded {:?} no-cache paths", result);
 
