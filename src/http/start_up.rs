@@ -3,35 +3,35 @@ use std::{net::SocketAddr, sync::Arc};
 use is_alive_middleware::IsAliveMiddleware;
 use my_http_server::MyHttpServer;
 
-pub enum Addr {
-    Tcp(SocketAddr),
-    Unix(String),
-}
+pub async fn setup_server(
+    tcp_listen_addr: SocketAddr,
+    #[cfg(unix)] unix_socket_path: Option<String>,
+) {
+    let mut http_server = MyHttpServer::new(tcp_listen_addr);
 
-impl Into<Addr> for SocketAddr {
-    fn into(self) -> Addr {
-        Addr::Tcp(self)
-    }
-}
+    #[cfg(unix)]
+    let mut unix_server = unix_socket_path.map(MyHttpServer::new_as_unix_socket);
 
-impl Into<Addr> for String {
-    fn into(self) -> Addr {
-        Addr::Unix(self)
-    }
-}
-
-pub async fn setup_server(addr: impl Into<Addr>) {
-    let mut http_server = match addr.into() {
-        Addr::Tcp(socket_addr) => MyHttpServer::new(socket_addr),
-        Addr::Unix(unix_socket_addr) => MyHttpServer::new_as_unix_socket(unix_socket_addr),
-    };
-
-    http_server.add_middleware(Arc::new(IsAliveMiddleware::new(
+    let is_alive_middleware = Arc::new(IsAliveMiddleware::new(
         crate::app::APP_CTX.app_name.to_string(),
         crate::app::APP_CTX.app_version.to_string(),
-    )));
+    ));
 
-    http_server.add_middleware(Arc::new(super::InjectVersionMiddleware));
+    #[cfg(unix)]
+    if let Some(unix_server) = unix_server.as_mut() {
+        unix_server.add_middleware(is_alive_middleware.clone());
+    }
+
+    http_server.add_middleware(is_alive_middleware);
+
+    let version_middleware = Arc::new(super::InjectVersionMiddleware);
+
+    #[cfg(unix)]
+    if let Some(unix_server) = unix_server.as_mut() {
+        unix_server.add_middleware(version_middleware.clone());
+    }
+
+    http_server.add_middleware(version_middleware);
 
     let mut static_files_middleware = my_http_server::StaticFilesMiddleware::new()
         .set_not_found_file("index.html".to_string())
@@ -44,12 +44,31 @@ pub async fn setup_server(addr: impl Into<Addr>) {
         static_files_middleware = static_files_middleware.set_path_not_to_cache(no_cache);
     }
 
-    http_server.add_middleware(Arc::new(static_files_middleware));
+
+    let static_middleware = Arc::new(static_files_middleware);
+
+    #[cfg(unix)]
+    if let Some(unix_server) = unix_server.as_mut() {
+        unix_server.add_middleware(static_middleware.clone());
+    }
+
+
+    http_server.add_middleware(static_middleware);
+
 
     http_server.start(
         crate::app::APP_CTX.app_states.clone(),
         my_logger::LOGGER.clone(),
     );
+
+
+    #[cfg(unix)]
+    if let Some(unix_server) = unix_server.as_mut() {
+        unix_server.start(
+            crate::app::APP_CTX.app_states.clone(),
+            my_logger::LOGGER.clone(),
+        );
+    }
 }
 
 async fn get_disable_cache_list() -> Vec<String> {
