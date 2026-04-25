@@ -64,7 +64,7 @@ pub async fn setup_server(
 
     #[cfg(unix)]
     if let Some(unix_server) = unix_server.as_mut() {
-        unix_server.start(
+        unix_server.start_auto(
             crate::app::APP_CTX.app_states.clone(),
             my_logger::LOGGER.clone(),
         );
