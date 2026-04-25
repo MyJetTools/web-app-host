@@ -56,7 +56,7 @@ pub async fn setup_server(
     http_server.add_middleware(static_middleware);
 
 
-    http_server.start(
+    http_server.start_auto(
         crate::app::APP_CTX.app_states.clone(),
         my_logger::LOGGER.clone(),
     );
