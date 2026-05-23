@@ -37,8 +37,13 @@ pub async fn setup_server(
         .set_not_found_file("index.html".to_string())
         .add_index_file("index.html")
         .with_etag()
-        .set_path_not_to_cache("/")
-        .enable_files_caching();
+        .set_path_not_to_cache("/");
+
+    if files_caching_enabled() {
+        static_files_middleware = static_files_middleware.enable_files_caching();
+    } else {
+        println!("FILES_CACHING_DISABLED=1 — in-memory files caching is disabled");
+    }
 
     for no_cache in get_disable_cache_list().await {
         static_files_middleware = static_files_middleware.set_path_not_to_cache(no_cache);
@@ -68,6 +73,13 @@ pub async fn setup_server(
             crate::app::APP_CTX.app_states.clone(),
             my_logger::LOGGER.clone(),
         );
+    }
+}
+
+fn files_caching_enabled() -> bool {
+    match std::env::var("FILES_CACHING_DISABLED") {
+        Ok(value) => value.trim() != "1",
+        Err(_) => true,
     }
 }
 
